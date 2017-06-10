@@ -38,11 +38,18 @@ In Cloud Genius workstation
 docker-machine create --driver digitalocean myvm1
 docker-machine create --driver digitalocean myvm2
 
+docker-machine create --driver digitalocean \
+    --digitalocean-access-token=9c817458775c95c89f2937ca5ed7bf0d5e8f0edf9ddbbab3c5590accffc83bff \
+    --digitalocean-size 2gb \
+    myvm1
 
 
 
 
 docker-machine ssh myvm1 "docker swarm init"
+
+docker swarm init --advertise-addr 159.203.70.89
+
 docker-machine ssh myvm2 "output from previous step"
 
 docker swarm join-token manager

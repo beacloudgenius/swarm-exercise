@@ -1,0 +1,97 @@
+version: "3.1"
+services:
+
+
+  traefik:
+    image: traefik
+    command: --entryPoints='Name:http Address::80 Redirect.EntryPoint:https' --entryPoints='Name:https Address::443 TLS' --defaultEntryPoints=http,https --acme.entryPoint=https --acme.email=nilesh@cloudgeni.us --acme.storage=/etc/traefik/acme/acme.json --acme.domains=proper.cloudgeni.us --acme.onHostRule=true --docker --docker.swarmmode --docker.domain=proper.cloudgeni.us --docker.watch
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - traefic_vol:/etc/traefik/acme
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+
+  wp:
+    image: wordpress:latest
+    volumes:
+      - wp_content:/var/www/html/wp-content
+    secrets:
+      - wp_db_password
+    environment:
+      - WORDPRESS_DB_USER=wp
+      - WORDPRESS_DB_NAME=wp
+      - WORDPRESS_DB_PASSWORD_FILE=/run/secrets/wp_db_password
+      - WORDPRESS_DB_HOST=mariadb
+    networks:
+      - traefik
+      - mariadb
+    deploy:
+      placement:
+        constraints: [node.role == worker]
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.backend.loadbalancer.swarm=true"
+        - "traefik.port=80"
+        - "traefik.frontend.rule=Host:proper.cloudgeni.us"
+        - "traefik.docker.network=traefik"
+
+  mariadb:
+    image: mariadb
+    volumes:
+      - mariadb_vol:/var/lib/mysql
+    secrets:
+      - wp_db_password
+      - root_db_password
+    environment:
+      - MYSQL_USER=wp
+      - MYSQL_DATABASE=wp
+      - MYSQL_PASSWORD_FILE=/run/secrets/wp_db_password
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/root_db_password
+    networks:
+      - mariadb
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+secrets:
+  wp_db_password:
+    external: true
+  root_db_password:
+    external: true
+
+volumes:
+  traefic_vol:
+    driver: "cloudstor:aws"
+  wp_content:
+    driver: "cloudstor:aws"
+  mariadb_vol:
+    driver: "cloudstor:aws"
+    driver_opts:
+      perfmode: maxio
+
+networks:
+  traefik:
+    external: true
+  mariadb:
+    external: true

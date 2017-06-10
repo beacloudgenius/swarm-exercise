@@ -21,22 +21,9 @@ services:
     image: jrcs/letsencrypt-nginx-proxy-companion
 
 
-  wp:
-    image: cloudgenius/myownwordpress
+  tutum-just-apache-app:
+    image: tutum/apache-php
     environment:
       - VIRTUAL_HOST=proper.cloudgeni.us
       - LETSENCRYPT_HOST=proper.cloudgeni.us
       - LETSENCRYPT_EMAIL=nilesh@cloudgeni.us
-      - WORDPRESS_DB_PASSWORD=example
-    ports:
-      - "80"
-
-  mysql:
-    image: mysql:5.7
-    environment:
-      - MYSQL_ROOT_PASSWORD=example
-
-  redis:
-    image: redis
-    port:
-      - "6379"
