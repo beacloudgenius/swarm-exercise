@@ -1,41 +1,30 @@
-https://blog.maddevs.io/deploy-and-scale-wordpress-with-docker-cloud-swarm-mode-f780d4e735cb
+## Caution:
 
-use edge
+Because of this issue https://github.com/docker/for-aws/issues/20
+use edge https://editions-us-east-1.s3.amazonaws.com/aws/edge/Docker.tmpl
+not stable https://editions-us-east-1.s3.amazonaws.com/aws/stable/Docker.tmpl
 
-https://editions-us-east-1.s3.amazonaws.com/aws/edge/Docker.tmpl
+## Deploy auto-scaling swarm in aws
 
-https://github.com/docker/for-aws/issues/20
+https://www.docker.com/aws
 
-not stable
-
-https://editions-us-east-1.s3.amazonaws.com/aws/stable/Docker.tmpl
-
-
-docker run --rm -ti -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST dockercloud/client cloudgenius/va
-
-export DOCKER_HOST=tcp://127.0.0.1:32769
+https://docs.docker.com/docker-for-aws/
 
 docker node ls
 
-ID                           HOSTNAME                       STATUS  AVAILABILITY  MANAGER STATUS
-0fti4troh7w1knny0dx2g88rr *  ip-172-31-44-80.ec2.internal   Ready   Active        Leader
-gz7gyid1vq4mui3uldum7q2y1    ip-172-31-38-118.ec2.internal  Ready   Active
-z3vp1y7qo7bjpkwm8976ft4nf    ip-172-31-17-200.ec2.internal  Ready   Active
+https://docs.docker.com/docker-for-aws/deploy/
 
-
-
-ssh -NL localhost:2374:/var/run/docker.sock docker@34.207.189.201 &                                                                        
-
+ssh -NL localhost:2374:/var/run/docker.sock docker@leader-ip   &
 docker -H localhost:2374 info     
-
 export DOCKER_HOST=tcp://127.0.0.1:2374
-
 docker info
 
 openssl rand -base64 20 | docker secret create root_db_password -
 openssl rand -base64 20 | docker secret create wp_db_password -
-docker network create -d overlay wp
 
+## Test
+
+docker network create -d overlay wp
 
 docker service create \
     --name mariadb \
@@ -66,24 +55,27 @@ docker service create \
    wordpress:4.8
 
 docker service ps wp
+
+## Clean up Test
+
+docker network rm wp
 docker service remove wp mariadb
 
+
+## scalable wordpress in docker swarm
 
 docker network create -d overlay traefik
 docker network create -d overlay mariadb
 
+docker stack deploy -c docker-compose.yml app
+docker service update --replicas 20 app_wp
 
-docker stack deploy -c docker-compose.yml wp
-
-
-
-
-debug
+## Debug
 
 docker service ls
 
 docker service ps <service-name>
-docker service ps wp_wp
+docker service ps app_wp
 
 docker inspect <task-id>
 docker inspect k05kofo6i3v6
@@ -95,3 +87,10 @@ docker service inpect deh2gu2vuc7hw9o8lgg4ivfck
 docker logs <container-id>
 docker plugin ls
 docker volume ls   
+
+
+## Mount EFS locally
+
+https://serverfault.com/questions/799016/elastic-file-system-efs-mount-outside-of-aws
+
+https://serverfault.com/questions/800187/amazon-efs-mount-from-osx?noredirect=1&lq=1
