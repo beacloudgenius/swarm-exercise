@@ -1,23 +1,3 @@
-# Swarm exercise
-```
-docker build -t cg .
-docker run -p 8080:80 cg
-docker login
-docker tag cg cloudgenius/friendlyname:tag
-docker push cloudgenius/friendlyname:tag
-docker run -p 8080:80 cloudgenius/friendlyname:tag
-
-docker swarm init
-docker stack deploy -c docker-compose.yml     appname
-docker stack ps appname
-```
-Change replica count in docker-compose.yml and
-```
-docker stack deploy -c docker-compose.yml appname
-docker stack rm appname
-```
-
-
 ## Swarm exercise
 
 #### In Windows 10 with docker installed
@@ -36,8 +16,8 @@ docker-machine create --driver digitalocean myvm1
 docker-machine create --driver digitalocean myvm2
 
 docker-machine create --driver digitalocean \
-    --digitalocean-access-token=9c817458775c95c89f2937ca5ed7bf0d5e8f0edf9ddbbab3c5590accffc83bff \
-    --digitalocean-size 2gb \
+    --digitalocean-access-token=75eef9cb757034e4e0114cc2fb677ae6a0e5dcc6230eb158d812b4c45754db96 \
+    --digitalocean-size 1gb \
     myvm1
 ```
 

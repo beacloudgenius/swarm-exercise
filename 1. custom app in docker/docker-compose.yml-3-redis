@@ -1,11 +1,9 @@
 version: "3"
 services:
-
-
   web:
     image: cloudgenius/friendlyname:tag
     deploy:
-      replicas: 5
+      replicas: 1
       resources:
         limits:
           cpus: "0.1"
@@ -15,7 +13,7 @@ services:
     ports:
       - "80:80"
     networks:
-      - webnet
+      - net
 
 
   visualizer:
@@ -28,8 +26,7 @@ services:
       placement:
         constraints: [node.role == manager]
     networks:
-      - webnet
-
+      - net
 
   redis:
     image: redis
@@ -39,9 +36,8 @@ services:
       placement:
         constraints: [node.role == manager]
     networks:
-      - webnet
-
+      - net
 
 
 networks:
-  webnet:
+  net:

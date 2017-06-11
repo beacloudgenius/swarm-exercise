@@ -3,7 +3,7 @@ services:
   web:
     image: cloudgenius/friendlyname:tag
     deploy:
-      replicas: 5
+      replicas: 1
       resources:
         limits:
           cpus: "0.1"
@@ -13,8 +13,8 @@ services:
     ports:
       - "80:80"
     networks:
-      - webnet
+      - net
 
 
 networks:
-  webnet:
+  net:
