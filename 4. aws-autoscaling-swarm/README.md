@@ -12,11 +12,11 @@ docker node ls
 ```
 https://docs.docker.com/docker-for-aws/deploy/
 
-use this Docker.tmpl
-https://editions-us-east-1.s3.amazonaws.com/aws/edge/Docker.tmpl
+use this cg.tmpl in cloud formation
+
 ```
-ssh -NL localhost:2374:/var/run/docker.sock docker@leader-ip   &
-docker -H localhost:2374 info     
+ssh -NL 127.0.0.1:2374:/var/run/docker.sock docker@leaderip   &
+docker -H 127.0.0.1:2374 info     
 export DOCKER_HOST=tcp://127.0.0.1:2374
 docker info
 ```
@@ -61,8 +61,8 @@ docker service ps wp
 
 ## Clean up Test
 ```
-docker network rm wp
 docker service remove wp mariadb
+docker network rm wp
 ```
 
 ## scalable wordpress in docker swarm
@@ -71,6 +71,8 @@ docker network create -d overlay traefik
 docker network create -d overlay mariadb
 
 docker stack deploy -c docker-compose.yml app
+docker stack ps app
+
 docker service update --replicas 20 app_wp
 ```
 ## Debug
