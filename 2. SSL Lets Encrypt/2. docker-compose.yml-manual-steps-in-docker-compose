@@ -1,0 +1,29 @@
+version: "2"
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    volumes:
+      - /root/certs:/etc/nginx/certs:ro
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    ports:
+      - "80:80"
+      - "443:443"
+
+  le-companion:
+    volumes:
+      - /root/certs:/etc/nginx/certs:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    volumes_from:
+      - nginx-proxy
+    image: jrcs/letsencrypt-nginx-proxy-companion
+
+
+  tutum-just-apache-app:
+    image: tutum/apache-php
+    environment:
+      - VIRTUAL_HOST=proper.cloudgeni.us
+      - LETSENCRYPT_HOST=proper.cloudgeni.us
+      - LETSENCRYPT_EMAIL=nilesh@cloudgeni.us
