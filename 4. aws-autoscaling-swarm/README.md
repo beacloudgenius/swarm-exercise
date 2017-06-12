@@ -6,13 +6,14 @@ not stable https://editions-us-east-1.s3.amazonaws.com/aws/stable/Docker.tmpl
 
 ## Deploy auto-scaling swarm in aws
 
-https://www.docker.com/aws
-
 https://docs.docker.com/docker-for-aws/
 ```
 docker node ls
 ```
 https://docs.docker.com/docker-for-aws/deploy/
+
+use this Docker.tmpl
+https://editions-us-east-1.s3.amazonaws.com/aws/edge/Docker.tmpl
 ```
 ssh -NL localhost:2374:/var/run/docker.sock docker@leader-ip   &
 docker -H localhost:2374 info     
