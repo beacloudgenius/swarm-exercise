@@ -41,7 +41,6 @@ docker service create \
     -e MYSQL_DATABASE=wp \
     mariadb:10.3
 
-docker service ps mariadb  
 
 docker service create \
    --name wp \
@@ -56,7 +55,29 @@ docker service create \
    -e WORDPRESS_DB_NAME=wp \
    wordpress:4.8
 
+
+docker service create \
+     --name=viz \
+     --publish 8080:8080 \
+     --constraint=node.role==manager \
+     --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
+     --detach=true \
+     dockersamples/visualizer
+
+
+docker service ps mariadb  
+
 docker service ps wp
+
+docker service ps viz
+
+#directly connect to the leader to check logs
+
+ssh root@
+
+docker service logs wp
+docker service logs mariadb
+
 ```
 
 ## Clean up Test
