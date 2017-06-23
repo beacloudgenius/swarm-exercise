@@ -1,0 +1,104 @@
+version: "3.1"
+services:
+
+
+  traefik:
+    image: traefik:1.2
+    command: --entryPoints='Name:http Address::80 Redirect.EntryPoint:https' --entryPoints='Name:https Address::443 TLS' --defaultEntryPoints=http,https --acme.entryPoint=https --acme.email=nilesh@cloudgeni.us --acme.storage=/etc/traefik/acme/acme.json --acme.domains=someother.cloudgeni.us --acme.onHostRule=true --docker --docker.swarmmode --docker.domain=someother.cloudgeni.us --docker.watch
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /mnt/gluster/traefic_vol/:/etc/traefik/acme
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+
+  wp:
+    image: wordpress:4.8
+    volumes:
+      - /mnt/gluster/wp-content:/var/www/html/wp-content
+    secrets:
+      - wp_db_password
+    environment:
+      - WORDPRESS_DB_USER=wp
+      - WORDPRESS_DB_NAME=wp
+      - WORDPRESS_DB_PASSWORD_FILE=/run/secrets/wp_db_password
+      - WORDPRESS_DB_HOST=mariadb
+    networks:
+      - traefik
+      - mariadb
+    deploy:
+      placement:
+        constraints: [node.role == worker]
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.backend.loadbalancer.swarm=true"
+        - "traefik.port=80"
+        - "traefik.frontend.rule=Host:someother.cloudgeni.us"
+        - "traefik.docker.network=traefik"
+
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - traefik
+
+  mariadb:
+    image: mariadb:10.3
+    volumes:
+      - /mnt/gluster/mariadb_vol/:/var/lib/mysql
+    secrets:
+      - wp_db_password
+      - root_db_password
+    environment:
+      - MYSQL_USER=wp
+      - MYSQL_DATABASE=wp
+      - MYSQL_PASSWORD_FILE=/run/secrets/wp_db_password
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/root_db_password
+    networks:
+      - mariadb
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+secrets:
+  wp_db_password:
+    external: true
+  root_db_password:
+    external: true
+
+#volumes:
+#  - traefic_vol:/mnt/gluster/traefic_vol
+#  - wp_content:/mnt/gluster/wp-content
+#  - mariadb_vol:/mnt/gluster/mariadb_vol
+
+networks:
+  traefik:
+    external: true
+  mariadb:
+    external: true

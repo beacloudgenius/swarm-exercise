@@ -49,6 +49,7 @@ docker service create \
    --network wp \
    --publish 80:80 \
    --secret source=wp_db_password,target=wp_db_password,mode=0400 \
+   --mount type=bind,source=/mnt/gluster/wp-content,destination=/var/www/html/wp-content \
    -e WORDPRESS_DB_USER=wp \
    -e WORDPRESS_DB_PASSWORD_FILE=/run/secrets/wp_db_password \
    -e WORDPRESS_DB_HOST=mariadb \
@@ -56,12 +57,12 @@ docker service create \
    wordpress:4.8
 
 
+
 docker service create \
      --name=viz \
      --publish 8080:8080 \
      --constraint=node.role==manager \
      --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
-     --detach=true \
      dockersamples/visualizer
 
 
@@ -70,6 +71,9 @@ docker service ps mariadb
 docker service ps wp
 
 docker service ps viz
+
+docker service update --replicas 2 wp
+
 
 #directly connect to the leader to check logs
 
@@ -82,7 +86,7 @@ docker service logs mariadb
 
 ## Clean up Test
 ```
-docker service remove wp mariadb
+docker service remove wp mariadb viz
 docker network rm wp
 ```
 
@@ -92,9 +96,18 @@ docker network create -d overlay traefik
 docker network create -d overlay mariadb
 
 docker stack deploy -c docker-compose.yml app
+
+docker stack deploy -c docker-compose.local.yml app
+
+
 docker stack ps app
 
-docker service update --replicas 20 app_wp
+docker service update --replicas 2 app_wp
+docker service update --replicas 1 app_wp
+docker service update --replicas 4 app_wp
+
+docker stack rm app
+
 ```
 ## Debug
 ```
