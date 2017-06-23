@@ -4,12 +4,12 @@ services:
 
   traefik:
     image: traefik:1.2
-    command: --entryPoints='Name:http Address::80 Redirect.EntryPoint:https' --entryPoints='Name:https Address::443 TLS' --defaultEntryPoints=http,https --acme.entryPoint=https --acme.email=nilesh@cloudgeni.us --acme.storage=/etc/traefik/acme/acme.json --acme.domains=someother.cloudgeni.us --acme.onHostRule=true --docker --docker.swarmmode --docker.domain=someother.cloudgeni.us --docker.watch
+    command: --entryPoints='Name:http Address::80 Redirect.EntryPoint:https' --entryPoints='Name:https Address::443 TLS' --defaultEntryPoints=http,https --acme.entryPoint=https --acme.email=nilesh@cloudgeni.us --acme.storage=/etc/traefik/acme/acme.json --acme.domains=cloudgenius.co --acme.onHostRule=true --docker --docker.swarmmode --docker.domain=cloudgenius.co --docker.watch
     ports:
       - 80:80
       - 443:443
     volumes:
-      - /mnt/gluster/traefic_vol/:/etc/traefik/acme
+      - /mnt/gluster/traefic_vol:/etc/traefik/acme
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - traefik
@@ -50,7 +50,7 @@ services:
       labels:
         - "traefik.backend.loadbalancer.swarm=true"
         - "traefik.port=80"
-        - "traefik.frontend.rule=Host:someother.cloudgeni.us"
+        - "traefik.frontend.rule=Host:cloudgenius.co"
         - "traefik.docker.network=traefik"
 
   visualizer:
@@ -68,7 +68,7 @@ services:
   mariadb:
     image: mariadb:10.3
     volumes:
-      - /mnt/gluster/mariadb_vol/:/var/lib/mysql
+      - /mnt/gluster/mariadb_vol:/var/lib/mysql
     secrets:
       - wp_db_password
       - root_db_password

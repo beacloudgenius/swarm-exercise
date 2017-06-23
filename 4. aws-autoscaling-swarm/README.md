@@ -90,15 +90,21 @@ docker service remove wp mariadb viz
 docker network rm wp
 ```
 
-## scalable wordpress in docker swarm
+## Production scalable wordpress in docker swarm
 ```
+
+openssl rand -base64 20 | docker secret create root_db_password -
+openssl rand -base64 20 | docker secret create wp_db_password -
 docker network create -d overlay traefik
 docker network create -d overlay mariadb
 
+for AWS EFS backed storage
+
 docker stack deploy -c docker-compose.yml app
 
-docker stack deploy -c docker-compose.local.yml app
+for gluster backed storage
 
+docker stack deploy -c docker-compose.local.yml app
 
 docker stack ps app
 
