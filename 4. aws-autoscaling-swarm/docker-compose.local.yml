@@ -9,7 +9,7 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - /mnt/gluster/traefic_vol:/etc/traefik/acme
+      - /mnt/gluster/traefik_vol:/etc/traefik/acme
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - traefik
@@ -69,6 +69,7 @@ services:
     image: mariadb:10.3
     volumes:
       - /mnt/gluster/mariadb_vol:/var/lib/mysql
+      - /mnt/gluster/mariadb_dump:/docker-entrypoint-initdb.d
     secrets:
       - wp_db_password
       - root_db_password
@@ -93,7 +94,7 @@ secrets:
     external: true
 
 #volumes:
-#  - traefic_vol:/mnt/gluster/traefic_vol
+#  - traefik_vol:/mnt/gluster/traefik_vol
 #  - wp_content:/mnt/gluster/wp-content
 #  - mariadb_vol:/mnt/gluster/mariadb_vol
 
