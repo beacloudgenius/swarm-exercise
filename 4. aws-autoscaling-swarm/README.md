@@ -93,19 +93,22 @@ docker network rm wp
 ## Production scalable wordpress in docker swarm
 ```
 
-openssl rand -base64 20 | docker secret create root_db_password -
-openssl rand -base64 20 | docker secret create wp_db_password -
+openssl rand -base64 20 | tee root_db_password | docker secret create root_db_password -
+openssl rand -base64 20 | tee wp_db_password   | docker secret create wp_db_password -
+openssl rand -base64 20 | tee x                | docker secret create x -
 docker network create -d overlay traefik
 docker network create -d overlay mariadb
-
-for AWS EFS backed storage
-
+```
+### for AWS EFS backed storage
+```
 docker stack deploy -c docker-compose.yml app
-
-for gluster backed storage
-
+```
+### for gluster backed storage
+```
 docker stack deploy -c docker-compose.local.yml app
-
+```
+### Manage the stack
+```
 docker stack ps app
 
 docker service update --replicas 2 app_wp
