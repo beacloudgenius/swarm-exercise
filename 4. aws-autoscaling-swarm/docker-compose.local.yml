@@ -3,7 +3,7 @@ services:
 
 
   traefik:
-    image: traefik:1.2
+    image: traefik
     command: --entryPoints='Name:http Address::80 Redirect.EntryPoint:https' --entryPoints='Name:https Address::443 TLS' --defaultEntryPoints=http,https --acme.entryPoint=https --acme.email=nilesh@cloudgeni.us --acme.storage=/etc/traefik/acme/acme.json --acme.domains=cloudgenius.co --acme.onHostRule=true --docker --docker.swarmmode --docker.domain=cloudgenius.co --docker.watch
     ports:
       - 80:80

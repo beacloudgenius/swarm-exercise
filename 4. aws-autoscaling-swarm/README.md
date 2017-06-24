@@ -35,6 +35,8 @@ docker service create \
     --network wp \
     --secret source=root_db_password,target=root_db_password \
     --secret source=wp_db_password,target=wp_db_password \
+    --mount type=bind,source=/mnt/gluster/mariadb_vol,destination=/var/lib/mysql \
+    --mount type=bind,source=/mnt/gluster/mariadb_dump,destination=/docker-entrypoint-initdb.d \
     -e MYSQL_ROOT_PASSWORD_FILE=/run/secrets/root_db_password \
     -e MYSQL_PASSWORD_FILE=/run/secrets/wp_db_password \
     -e MYSQL_USER=wp \
@@ -93,9 +95,13 @@ docker network rm wp
 ## Production scalable wordpress in docker swarm
 ```
 
-openssl rand -base64 20 | tee root_db_password | docker secret create root_db_password -
-openssl rand -base64 20 | tee wp_db_password   | docker secret create wp_db_password -
-openssl rand -base64 20 | tee x                | docker secret create x -
+openssl rand -base64 20  | tee root_db_password | docker secret create root_db_password -
+openssl rand -base64 20  | tee wp_db_password   | docker secret create wp_db_password -
+#openssl rand -base64 20 | tee x                | docker secret create x -
+
+echo $root_db_password | docker secret create root_db_password -
+echo $wp_db_password   | docker secret create wp_db_password -
+
 docker network create -d overlay traefik
 docker network create -d overlay mariadb
 ```
