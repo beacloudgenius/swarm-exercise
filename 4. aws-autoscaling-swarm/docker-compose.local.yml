@@ -69,7 +69,7 @@ services:
     image: mariadb:10.3
     volumes:
       - /mnt/gluster/mariadb_vol:/var/lib/mysql
-      - /mnt/gluster/mariadb_dump:/docker-entrypoint-initdb.d
+#      - /mnt/gluster/mariadb_dump:/docker-entrypoint-initdb.d
     secrets:
       - wp_db_password
       - root_db_password
