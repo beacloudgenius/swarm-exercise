@@ -17,6 +17,12 @@ services:
     deploy:
       placement:
         constraints: [node.role == manager]
+      labels:
+        - "traefik.port=8080"
+        - "traefik.frontend.rule=Host:tra.fungibleclouds.com"
+        - "traefik.frontend.passHostHeader=true"
+        - "traefik.docker.network=traefik"
+        - "traefik.backend.loadbalancer.method=wrr"
       replicas: 1
       update_config:
         parallelism: 2
@@ -49,6 +55,8 @@ services:
       restart_policy:
         condition: on-failure
       labels:
+        - "traefik.backend=wordpress"
+        - "traefik.backend.circuitbreaker.expression=NetworkErrorRatio() > 0.5"
         - "traefik.backend.loadbalancer.swarm=true"
         - "traefik.backend.loadbalancer.method=wrr"
         - "traefik.backend.loadbalancer.sticky=true"
@@ -68,9 +76,10 @@ services:
         constraints: [node.role == manager]
       labels:
         - "traefik.port=8080"
-        - "traefik.frontend.rule=Host:fungibleclouds.com"
+        - "traefik.frontend.rule=Host:viz.fungibleclouds.com"
         - "traefik.frontend.passHostHeader=true"
         - "traefik.docker.network=traefik"
+        - "traefik.backend.loadbalancer.method=wrr"
     networks:
       - traefik
 
