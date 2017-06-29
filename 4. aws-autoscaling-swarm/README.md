@@ -95,12 +95,13 @@ docker network rm wp
 ## Production scalable wordpress in docker swarm
 ```
 
-openssl rand -base64 20  | tee root_db_password | docker secret create root_db_password -
-openssl rand -base64 20  | tee wp_db_password   | docker secret create wp_db_password -
-#openssl rand -base64 20 | tee x                | docker secret create x -
+openssl rand -base64 20  | tee root_db_password    | docker secret create root_db_password -
+openssl rand -base64 20  | tee wp_db_password      | docker secret create wp_db_password -
+openssl rand -base64 20  | tee xtrabackup_password | docker secret create xtrabackup_password -
 
-echo $root_db_password | docker secret create root_db_password -
-echo $wp_db_password   | docker secret create wp_db_password -
+echo $root_db_password      | docker secret create root_db_password -
+echo $wp_db_password        | docker secret create wp_db_password -
+echo $xtrabackup_password   | docker secret create xtrabackup_password -
 
 docker network create -d overlay traefik
 docker network create -d overlay mariadb

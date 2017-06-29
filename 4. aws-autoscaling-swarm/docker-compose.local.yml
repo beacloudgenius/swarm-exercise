@@ -3,7 +3,7 @@ services:
 
 
   traefik:
-    image: traefik
+    image: traefik:v1.3.1
 #    command: --entryPoints='Name:http Address::80 Redirect.EntryPoint:https' --entryPoints='Name:https Address::443 TLS' --defaultEntryPoints=http,https --acme.entryPoint=https --acme.email=nilesh@cloudgeni.us --acme.storage=/etc/traefik/acme/acme.json --acme.domains=cloudgenius.co --acme.onHostRule=true --docker --docker.swarmmode --docker.domain=cloudgenius.co --docker.watch
     ports:
       - 80:80
@@ -26,7 +26,7 @@ services:
 
 
   wp:
-    image: wordpress:4.8
+    image: wordpress:4.8.0-php7.1-apache
     volumes:
       - /mnt/gluster/wp-content:/var/www/html/wp-content
     secrets:
@@ -58,14 +58,19 @@ services:
         - "traefik.docker.network=traefik"
 
   visualizer:
-    image: dockersamples/visualizer:stable
-    ports:
-      - "8080:8080"
+    image: dockersamples/visualizer:latest
+#    ports:
+#      - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     deploy:
       placement:
         constraints: [node.role == manager]
+      labels:
+        - "traefik.port=8080"
+        - "traefik.frontend.rule=Host:fungibleclouds.com"
+        - "traefik.frontend.passHostHeader=true"
+        - "traefik.docker.network=traefik"
     networks:
       - traefik
 
