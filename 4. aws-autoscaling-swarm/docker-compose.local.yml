@@ -4,13 +4,14 @@ services:
 
   traefik:
     image: traefik
-    command: --entryPoints='Name:http Address::80 Redirect.EntryPoint:https' --entryPoints='Name:https Address::443 TLS' --defaultEntryPoints=http,https --acme.entryPoint=https --acme.email=nilesh@cloudgeni.us --acme.storage=/etc/traefik/acme/acme.json --acme.domains=cloudgenius.co --acme.onHostRule=true --docker --docker.swarmmode --docker.domain=cloudgenius.co --docker.watch
+#    command: --entryPoints='Name:http Address::80 Redirect.EntryPoint:https' --entryPoints='Name:https Address::443 TLS' --defaultEntryPoints=http,https --acme.entryPoint=https --acme.email=nilesh@cloudgeni.us --acme.storage=/etc/traefik/acme/acme.json --acme.domains=cloudgenius.co --acme.onHostRule=true --docker --docker.swarmmode --docker.domain=cloudgenius.co --docker.watch
     ports:
       - 80:80
       - 443:443
     volumes:
       - /mnt/gluster/traefik_vol:/etc/traefik/acme
       - /var/run/docker.sock:/var/run/docker.sock
+      - /mnt/gluster/traefik_vol/traefik.toml:/etc/traefik/traefik.toml
     networks:
       - traefik
     deploy:
@@ -49,8 +50,11 @@ services:
         condition: on-failure
       labels:
         - "traefik.backend.loadbalancer.swarm=true"
+        - "traefik.backend.loadbalancer.method=wrr"
+        - "traefik.backend.loadbalancer.sticky=true"
         - "traefik.port=80"
         - "traefik.frontend.rule=Host:cloudgenius.co"
+        - "traefik.frontend.passHostHeader=true"
         - "traefik.docker.network=traefik"
 
   visualizer:
