@@ -105,6 +105,7 @@ echo $xtrabackup_password   | docker secret create xtrabackup_password -
 
 docker network create -d overlay traefik
 docker network create -d overlay mariadb
+docker network create -d overlay --subnet=10.0.0.0/24 galera_network
 ```
 ### for AWS EFS backed storage
 ```
